@@ -1,8 +1,8 @@
 <template>
   <div>
     <CRUDView :data-service="this.dataService" title="Sessions" :isReadOnly="!this.canEditSessionData()" />
-    <router-link v-if="this.canRegisterAttendance() && this.canMarkAttendance" :to="`/attendance/${this.$route.params.id}`" id="mark" class="btn btn-primary" style="margin-top: 2%; margin: 1em; display: inline" >Mark Attendance</router-link>
-    <form class="Search" v-if="this.canEditSessionData()">
+    <router-link :to="`/attendance/${this.$route.params.id}`" id="mark" class="btn btn-primary" style="margin-top: 2%; margin: 1em; display: inline" >Mark Attendance</router-link>
+    <form class="Search">
       <div class="row justify-content-center">
         <div class="col-md-6">
           <div class="input-group">
@@ -22,7 +22,6 @@
 <script>
 import ModelDataService from "@/services/models.data.service";
 import CRUDView from "./shared/CRUDView.vue";
-import permissions from "../services/permissions.data.service";
 import { actions } from "../../constants";
 import UserTypes from "../../../shared/usertypes";
 
@@ -90,19 +89,7 @@ export default {
         .catch((error) =>
           ModelDataService.ErrorHandlerService.handlerError(error)
         );
-    },
-    canEditSessionData() {
-      return permissions.hasPermission(
-        ModelDataService.HTTPCommonDataService.getApplicationUser().UserTypeId,
-        actions.EDIT_SESSION
-      );
-    },
-    canRegisterAttendance() {
-      return permissions.hasPermission(
-        ModelDataService.HTTPCommonDataService.getApplicationUser().UserTypeId,
-        actions.MARK_ATTENDANCE
-      );
-    },
+    }
   },
   mounted() {
     this.getSession();

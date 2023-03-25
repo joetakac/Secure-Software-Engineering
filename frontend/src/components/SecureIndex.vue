@@ -5,17 +5,17 @@
           <router-link :to="this.getDefaultRoute()" class="navbar-brand">{{this.title}}</router-link>
         <div class="navbar-nav me-auto">
 
-          <li v-if="this.showTimetableLink()" class="nav-item">
+          <li v-if="this.keycloak.hasRealmRole('Student')" class="nav-item">
             <router-link to="/timetable" class="nav-link">Timetable</router-link>
           </li>
 
-          <li v-if="this.showUploadFileDropDown()" class="nav-item dropdown">
+          <li v-if="!this.keycloak.hasRealmRole('Student')" class="nav-item dropdown">
             <a class="nav-link" href="#">
               <router-link to="/upload" class="dropdown-item">Upload File</router-link>
             </a>
           </li>
 
-          <li v-if="this.showReportLink()" class="nav-item">
+          <li v-if="!this.keycloak.hasRealmRole('Student')" class="nav-item">
             <router-link to="/reporting" class="nav-link">Reporting</router-link>
           </li>
 
@@ -41,46 +41,27 @@
 </template>
   
 <script>
-import httpCommonService from "../services/http-common.data.service";
-import permissions from '../services/permissions.data.service'
-import { actions } from "../../constants";
 
 export default {
   name: "app",
   data(){
         return{
             title: document.title,
-            currentUser: httpCommonService.getApplicationUser(),
-            currentUserName: httpCommonService.getApplicationUser().Name
+            currentUser: this.keycloak.tokenParsed,
+            currentUserName: this.keycloak.tokenParsed.name,
         }
     },
+    inject: ['keycloak'],
   methods:
   {
     Logout() {
-      httpCommonService.deleteCookie("access_token");
-      this.$router.push("/");
-    },
-    showTimetableLink()
-    {
-      return permissions.hasPermission(this.currentUser.UserTypeId, actions.VIEW_TIMETABLE);
-    },
-    showUploadFileDropDown()
-    {
-      return permissions.hasPermission(this.currentUser.UserTypeId, actions.UPLOAD_FILE);
-    },
-    showReportLink()
-    {
-      return permissions.hasPermission(this.currentUser.UserTypeId, actions.VIEW_REPORT);
-    },
-    canReturnToHome()
-    {
-      return permissions.hasPermission(this.currentUser.UserTypeId, actions.RETURN_HOME)
+      this.keycloak.clearToken().logout();
     },
     getDefaultRoute()
     {
-      if (httpCommonService.getApplicationUser().UserTypeId == 1)
+      if (this.keycloak.hasRealmRole('Student')) 
       {
-        return("/timetable");
+          this.$router.push('/timetable')
       }
       
       return("/home");

@@ -30,8 +30,7 @@
 
 import UserMarkAttendance from './shared/UserMarkAttendance.vue';
 import ModelDataService from '../services/models.data.service';
-import permissions from "../services/permissions.data.service";
-import { actions } from "../../constants";
+
 
 export default {
     components: {
@@ -104,11 +103,6 @@ export default {
                 });
             }
         },
-        canRegisterAttendance() {
-            return permissions.hasPermission(
-                ModelDataService.HTTPCommonDataService.getApplicationUser().UserTypeId,
-                actions.MARK_ATTENDANCE);            
-        }
     },
     mounted() {
         if (!this.$route.params.id || !this.canRegisterAttendance()) {

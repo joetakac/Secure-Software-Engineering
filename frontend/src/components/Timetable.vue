@@ -32,10 +32,11 @@ export default {
       },
     };
   },
+  inject: ['keycloak'],
   methods: {
     populateCalendar() 
     {
-      if (this.ApplicationUser.UserTypeId === UserTypes.Student.Id) 
+      if (this.keycloak.hasRealmRole('Student')) 
       {
         ModelDataService.SessionDataService.getSessionForUser()
         .then(response => this.createEvents(JSON.parse(response.data)))
@@ -88,9 +89,10 @@ export default {
     },
   },
   mounted() {
-    this.ApplicationUser = ModelDataService.HTTPCommonDataService.getApplicationUser(); 
+    this.ApplicationUser = this.keycloak.tokenParsed;
     this.populateCalendar();
     var today = new Date();
+
   },
 };
 </script>
