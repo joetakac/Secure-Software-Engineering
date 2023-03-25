@@ -1,17 +1,15 @@
 var express = require('express');
 var router = express.Router();
-var Auth = require('../authentication')
-var UserTypes = require('../../shared/usertypes');
-
 var reportingController = require('../controllers/reporting.controller');
+const { protectAA } = require('../authentication/keycloakroles');
  
 router.get("/reporting/student", reportingController.GetAttendanceForStudent);
 
-router.get("/reporting/module", Auth.AllowedUserType(UserTypes.AcademicAdvisor.Id), reportingController.GetAttendanceForModule);
+router.get("/reporting/module", protectAA, reportingController.GetAttendanceForModule);
 
-router.get("/reporting/course", Auth.AllowedUserType(UserTypes.AcademicAdvisor.Id), reportingController.GetAttendanceForCourse);
+router.get("/reporting/course", protectAA, reportingController.GetAttendanceForCourse);
 
-router.get("/reporting/advisor", Auth.AllowedUserType(UserTypes.AcademicAdvisor.Id), reportingController.GetAttendanceForAdvisor);
+router.get("/reporting/advisor", protectAA, reportingController.GetAttendanceForAdvisor);
 
 router.post("/reporting/download", reportingController.DownloadReport);
 

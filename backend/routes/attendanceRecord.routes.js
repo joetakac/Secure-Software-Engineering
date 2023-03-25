@@ -1,25 +1,25 @@
 var express = require('express');
 var router = express.Router();
-var Auth = require('../authentication')
-var UserTypes = require('../../shared/usertypes');
+const {protectCL,protectML,protectT,protectAA} = require('./keycloakProtect');
+
 
 //Require controller
 var attendanceController = require('../controllers/attendanceRecord.controller');
  
 // Create a new attendance
-router.post("/attendanceRecords/", Auth.AllowedUserType(UserTypes.Tutor.Id), attendanceController.create);
+router.post("/attendanceRecords/", protectT, attendanceController.create);
  
 // Retrieve all attendances
-router.get("/attendanceRecords/", attendanceController.findAll);
+router.get("/attendanceRecords/", protectCL, protectML, protectT, protectAA, attendanceController.findAll);
  
 // Retrieve a single attendance with id
-router.get("/attendanceRecords/:id", attendanceController.findOne);
+router.get("/attendanceRecords/:id", protectCL, protectML, protectT, protectAA, attendanceController.findOne);
  
 // Update a attendance with id
-router.put("/attendanceRecords/:id", Auth.AllowedUserType(UserTypes.Tutor.Id), attendanceController.update);
+router.put("/attendanceRecords/:id", protectT, protectCL, protectML, attendanceController.update);
  
 // Delete a attendance with id
-router.delete("/attendanceRecords/:id", Auth.AllowedUserType(UserTypes.Tutor.Id), attendanceController.delete);
+router.delete("/attendanceRecords/:id", protectCL, attendanceController.delete);
 
 /* GET attendances listing. */
 router.get('/', function(req, res, next) {

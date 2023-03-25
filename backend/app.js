@@ -3,7 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var Auth = require("./authentication");
+//var Auth = require("./authentication");
+const session = require('express-session');
+const Keycloak = require('keycloak-connect');
 
 require('dotenv').config();
 
@@ -28,26 +30,43 @@ var moduleRouter = require('./routes/module.routes');
 var courseRouter = require('./routes/course.routes');
 var attendanceRouter = require('./routes/attendanceRecord.routes');
 var sessionRouter = require('./routes/session.routes');
-var authRouter = require('./routes/authentication.routes');
+//var authRouter = require('./routes/authentication.routes');
 var fileuploadRouter = require('./routes/fileupload.routes');
 var reportingRouter = require('./routes/reporting.routes');
 
-function Authenticate(req, res, next){
-  if (req.path.toLowerCase() == '/login') {
-    next();
-    return;
-  }
-  var result = Auth.verifyToken(req);
-  if (result.Status == 200)
-  {
-    next();
-  }
-  else{
-    res.status(result.Status).send({ message: result.Message });
-  }
-}
+// function Authenticate(req, res, next){
+//   if (req.path.toLowerCase() == '/login') {
+//     next();
+//     return;
+//   }
+//   var result = Auth.verifyToken(req);
+//   if (result.Status == 200)
+//   {
+//     next();
+//   }
+//   else{
+//     res.status(result.Status).send({ message: result.Message });
+//   }
+// }
 
 var app = express();
+
+
+const memoryStore = new session.MemoryStore();
+const keycloak = new Keycloak({
+  store: memoryStore,
+  realm: 'demo',
+  authServerUrl: 'http://localhost:8080/',
+  sslRequired: 'external',
+  resource: 'test-client',
+  credentials: {
+    secret: 'l5FjhGkZuwON4s4qDwMt2IG2naYrl6DO'
+  }
+}
+);
+
+
+app.use(keycloak.middleware());
 
 app.use(cors());
 app.use(fileupload());
@@ -58,7 +77,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(Authenticate);
+//app.use(Authenticate);
 app.use('/', indexRouter);
 app.use('/', usersRouter);
 app.use('/', moduleRouter);
