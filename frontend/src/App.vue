@@ -2,15 +2,12 @@
   <div id="app">
     <ErrorView v-if="hasError" />
     <Index v-else-if="loggedIn"/>
-    <LoginVue v-else-if="!loggedIn"/>
   </div>
 </template>
 
 <script>
 
-import LoginVue from './components/Login.vue';
 import Index from './components/SecureIndex.vue';
-import ModelDataService from './services/models.data.service';
 import ErrorView from './components/Error.vue'
 
 export default {
@@ -18,26 +15,24 @@ export default {
   data() {
     return {
       loggedIn: false,
-      hasError: false,
+      hasError: false
     }
   },
+  inject: ['keycloak'],
   components: {
-      LoginVue,
       Index,
       ErrorView,
     },
   methods: {
     isLoggedIn() {
-      ModelDataService.AuthenticationDataService.verifyToken()
-      .then(response => 
-      {
-        if(response.status == 200) {
-          this.loggedIn = true;
-          this.hasError = false;
-        }
+      if(this.keycloak.authenticated) {
+        this.loggedIn = true;
         this.updateRoutes();
-      })
-      .catch(error => ModelDataService.ErrorHandlerService.handlerError(error));
+      }
+      else {
+        this.loggedIn = false;
+        this.updateRoutes();
+      }
     },
     loadFonts() {
       var fontAwesome = document.createElement('script')
@@ -45,26 +40,23 @@ export default {
       document.head.appendChild(fontAwesome)
     },
     updateRoutes() {
-      if (this.loggedIn) 
+      if (this.loggedIn && this.keycloak.hasRealmRole('Student')) 
       {
-        if(window.location.pathname == "/" || window.location.pathname == "/login"){
-          this.$router.push('/home')
-        }
+          this.$router.push('/timetable')
       }
-      else 
+      else if (this.loggedIn && !this.keycloak.hasRealmRole('Student'))
       {
-        this.$router.push('/login')
+        this.$router.push('/home')
+      } else if(!this.loggedIn) {
+        this.keycloak.logout();
       }
+
     }
   },
   mounted() {
       this.loadFonts();
-      if(window.location.pathname.includes('error')){
-        this.hasError = true;
-      }
-      if(!this.hasError){
-        this.isLoggedIn();
-      }
+      this.isLoggedIn();
+      console.log(this.keycloak.tokenParsed);
     }
 };
 </script>
