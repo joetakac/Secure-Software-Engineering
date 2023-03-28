@@ -67,6 +67,7 @@ const keycloak = new Keycloak({
 
 
 app.use(keycloak.middleware());
+module.exports = keycloak;
 
 app.use(cors());
 app.use(fileupload());

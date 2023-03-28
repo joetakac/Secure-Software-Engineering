@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var Auth = require('../authentication')
 var UserTypes = require('../../shared/usertypes');
-const {protectML,protectT} = require('./keycloakProtect');
+const {protectML,protectT} = require('../authentication/keycloakroles');
 
 //Require controller
 var sessionController = require('../controllers/session.controller');

@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var Auth = require('../authentication')
-var UserTypes = require('../../shared/usertypes');
+const {protectCL} = require('../authentication/keycloakroles');
+
 
 //Require controller
 var userController = require('../controllers/user.controller');
  
 // Create a new user
-router.post("/users/", Auth.AllowedUserType(UserTypes.CourseLeader.Id), userController.create);
+router.post("/users/", protectCL, userController.create);
  
 // Retrieve all users matching query
 router.get("/users/", userController.find);
@@ -16,10 +16,10 @@ router.get("/users/", userController.find);
 router.get("/users/:id", userController.findOne);
  
 // Update a user with id
-router.put("/users/:id", Auth.AllowedUserType(UserTypes.CourseLeader.Id), userController.update);
+router.put("/users/:id", protectCL, userController.update);
  
 // Delete a user with id
-router.delete("/users/:id", Auth.AllowedUserType(UserTypes.CourseLeader.Id), userController.delete);
+router.delete("/users/:id", protectCL, userController.delete);
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {

@@ -22,7 +22,6 @@ export default {
         now: this.today,
         eventClick: this.onEventClick,
         events: [],
-        ApplicationUser: null,
         contentHeight:window.innerHeight,
         businessHours: {
           daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
@@ -30,6 +29,7 @@ export default {
           endTime: '19:00',
         },
       },
+      ApplicationUser: this.keycloak.tokenParsed,
     };
   },
   inject: ['keycloak'],
@@ -42,13 +42,13 @@ export default {
         .then(response => this.createEvents(JSON.parse(response.data)))
         .catch(error => ModelDataService.ErrorHandlerService(error));
       }
-      else if (this.ApplicationUser.UserTypeId === UserTypes.Tutor.Id) 
+      else if (this.keycloak.hasRealmRole('Tutor')) 
       {
         ModelDataService.ModuleDataService.getAll().then(response => 
         {
           var modules = JSON.parse(response.data)
           var sessions = [];
-          modules = modules.filter(module => module.Tutors.find(tutor => tutor.Id === this.ApplicationUser.Id));
+          modules = modules.filter(module => module.Tutors.find(tutor => tutor.Id === parseInt(this.keycloak.tokenParsed.preferred_username)));
           modules.map(module => module.Sessions.map(session => sessions.push(session)));
           this.createEvents(sessions);
         })
@@ -89,7 +89,7 @@ export default {
     },
   },
   mounted() {
-    this.ApplicationUser = this.keycloak.tokenParsed;
+    console.log(this.keycloak.tokenParsed.preferred_username);
     this.populateCalendar();
     var today = new Date();
 

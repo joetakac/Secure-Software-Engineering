@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {protectCL} = require('./keycloakProtect');
+const {protectCL} = require('../authentication/keycloakroles');
 
 //Require controller
 var courseController = require('../controllers/course.controller');
